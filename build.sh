@@ -29,7 +29,10 @@ apt-get install -qy --no-install-recommends \
     make \
     unzip \
     xz-utils \
-    zlib1g-dev
+    zlib1g-dev \
+    autoconf \
+    automake \
+    libtool
 if [ -d "/home/fixes/pre_fetch/${DEBARCH}" ]; then
     find "/home/fixes/pre_fetch/${DEBARCH}" -type f -exec '{}' \;
 fi
@@ -38,15 +41,17 @@ if [ -d "/home/fixes/pre_fetch/all" ]; then
 fi
 mkdir -p /home/firebird
 cd /home/firebird
-curl -L -o firebird-source.tar.xz -L \
+curl -L -o firebird-source.tar.gz -L \
     "${FBURL}"
-tar --strip=1 -xf firebird-source.tar.xz
+tar --strip=1 -xzf firebird-source.tar.gz
 if [ -d "/home/fixes/pre_build/${DEBARCH}" ]; then
     find "/home/fixes/pre_build/${DEBARCH}" -type f -exec '{}' \;
 fi
 if [ -d "/home/fixes/pre_build/all" ]; then
     find "/home/fixes/pre_build/all" -type f -exec '{}' \;
 fi
+export NOCONFIGURE="test"
+./autogen.sh
 if [ "${TARGETPLATFORM}" != "${BUILDPLATFORM}" ]; then
     dpkg --add-architecture "$DEBARCH"
     apt-get update
@@ -70,6 +75,7 @@ if [ "${TARGETPLATFORM}" != "${BUILDPLATFORM}" ]; then
         --with-fbsecure-db="${VOLUME}/system" \
         --host="${CONFARCHS[${TARGETPLATFORM}]}" --target="${CONFARCHS[${TARGETPLATFORM}]}" --build="${CONFARCHS[${TARGETPLATFORM}]}"
 else
+export NOCONFIGURE
     ./configure \
         --prefix="${PREFIX}"/ --with-fbbin="${PREFIX}"/bin/ --with-fbsbin="${PREFIX}"/bin/ --with-fblib="${PREFIX}"/lib/ \
         --with-fbinclude="${PREFIX}"/include/ --with-fbdoc="${PREFIX}"/doc/ --with-fbudf="${PREFIX}"/UDF/ \

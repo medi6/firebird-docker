@@ -161,6 +161,13 @@ ISC_PASSWD=${ISC_PASSWORD}
 
 EOL
 
+  build isql "set sql dialect 3;"
+  build isql "CONNECT employee USER '${ISC_USER}' PASSWORD '${ISC_PASSWORD}';"
+  build isql "CREATE USER MEDWEB PASSWORD '${MDP_MEDWEB}';"
+  build isql "COMMIT;"
+  build isql "QUIT;"
+  run isql
+
   fi
 
   if [ -f "${VOLUME}/etc/SYSDBA.password" ]; then
@@ -171,32 +178,32 @@ EOL
   file_env 'FIREBIRD_PASSWORD'
   file_env 'FIREBIRD_DATABASE'
 
-  build isql "set sql dialect 3;"
-  if [ -n "${FIREBIRD_DATABASE}" ] && [ ! -f "${DBPATH}/${FIREBIRD_DATABASE}" ]; then
-      if [ "${FIREBIRD_USER}" ];  then
-          build isql "CONNECT employee USER '${ISC_USER}' PASSWORD '${ISC_PASSWORD}';"
-          if [ -z "${FIREBIRD_PASSWORD}" ]; then
-              FIREBIRD_PASSWORD=$(createNewPassword)
-              echo "setting '${FIREBIRD_USER}' password to '${FIREBIRD_PASSWORD}'"
-          fi
-          build isql "CREATE USER ${FIREBIRD_USER} PASSWORD '${FIREBIRD_PASSWORD}';"
-          build isql "COMMIT;"
-      fi
 
-      stmt="CREATE DATABASE '${DBPATH}/${FIREBIRD_DATABASE}'"
-      if [ "${FIREBIRD_USER}" ];  then
-          stmt+=" USER '${FIREBIRD_USER}' PASSWORD '${FIREBIRD_PASSWORD}'"
-      else
-          stmt+=" USER '${ISC_USER}' PASSWORD '${ISC_PASSWORD}'"
-      fi
-      stmt+=" DEFAULT CHARACTER SET UTF8;";
-      build isql "${stmt}";
-      build isql "COMMIT;"
-      if [ "${isql}" ]; then
-          build isql "QUIT;"
-          run isql
-      fi
-  fi
+  #if [ -n "${FIREBIRD_DATABASE}" ] && [ ! -f "${DBPATH}/${FIREBIRD_DATABASE}" ]; then
+  #    if [ "${FIREBIRD_USER}" ];  then
+  #        build isql "CONNECT employee USER '${ISC_USER}' PASSWORD '${ISC_PASSWORD}';"
+  #        if [ -z "${FIREBIRD_PASSWORD}" ]; then
+  #            FIREBIRD_PASSWORD=$(createNewPassword)
+  #            echo "setting '${FIREBIRD_USER}' password to '${FIREBIRD_PASSWORD}'"
+  #        fi
+  #        build isql "CREATE USER ${FIREBIRD_USER} PASSWORD '${FIREBIRD_PASSWORD}';"
+  #        build isql "COMMIT;"
+  #    fi
+
+  #    stmt="CREATE DATABASE '${DBPATH}/${FIREBIRD_DATABASE}'"
+  #    if [ "${FIREBIRD_USER}" ];  then
+  #        stmt+=" USER '${FIREBIRD_USER}' PASSWORD '${FIREBIRD_PASSWORD}'"
+  #    else
+  #        stmt+=" USER '${ISC_USER}' PASSWORD '${ISC_PASSWORD}'"
+  #    fi
+  #    stmt+=" DEFAULT CHARACTER SET UTF8;";
+  #    build isql "${stmt}";
+  #    build isql "COMMIT;"
+  #    if [ "${isql}" ]; then
+  #        build isql "QUIT;"
+  #        run isql
+  #    fi
+  #fi
 
   while IFS=';' read -ra FBALIAS; do
       for i in "${FBALIAS[@]}"; do
