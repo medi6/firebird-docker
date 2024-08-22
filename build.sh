@@ -43,7 +43,7 @@ mkdir -p /home/firebird
 cd /home/firebird
 curl -L -o firebird-source.tar.gz -L \
     "${FBURL}"
-tar --strip=1 -xzf firebird-source.tar.gz
+tar --strip=1 -xJf firebird-source.tar.gz
 if [ -d "/home/fixes/pre_build/${DEBARCH}" ]; then
     find "/home/fixes/pre_build/${DEBARCH}" -type f -exec '{}' \;
 fi
